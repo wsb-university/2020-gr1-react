@@ -1,69 +1,79 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 
-class App extends Component {
-  state = {
-    email: '',
-    password: '',
-    isSubmitted: false,
+const App = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [counter, setCounter] = useState(0);
+
+  useEffect(() => {
+    setTimeout(() => setCounter(1), 5000);
+    setTimeout(() => setCounter(2), 10000);
+    setTimeout(() => setCounter(3), 15000);
+  }, []);
+
+  const handleChangeEmail = (event) => {
+    setEmail(event.target.value);
   };
 
-  handleLogin = (event) => {
-    this.setState({ isSubmitted: true });
+  const handleChangePassword = (event) => {
+    setPassword(event.target.value);
   };
 
-  handleChangeEmail = (event) => {
-    this.setState({ email: event.target.value });
+  const handleLogin = () => {
+    setIsSubmitted(true);
   };
 
-  handleChangePassword = (event) => {
-    this.setState({ password: event.target.value });
+  const handleLogout = () => {
+    setEmail('');
+    setPassword('');
+    setIsSubmitted(false);
   };
 
-  handleLogout = () => {
-    this.setState({ password: '', email: '', isSubmitted: false });
-  };
+  return (
+    <>
+      <div>Time on the page: {counter}</div>
+      {isSubmitted === false && (
+        <section className="red" id="test">
+          <div>
+            <label
+              style={{
+                fontWeight: 'bold',
+                color: '#ccc',
+              }}
+            >
+              E-mail:
+            </label>
+            <input onChange={handleChangeEmail} value={email} />
+          </div>
 
-  render() {
-    return (
-      <>
-        {this.state.isSubmitted === false && (
-          <section>
-            <div>
-              <label>E-mail:</label>
-              <input
-                onChange={this.handleChangeEmail}
-                value={this.state.email}
-              />
-            </div>
+          <div>
+            <label>Password:</label>
+            <input
+              onChange={handleChangePassword}
+              type="password"
+              value={password}
+            />
+          </div>
 
-            <div>
-              <label>Password:</label>
-              <input
-                onChange={this.handleChangePassword}
-                type="password"
-                value={this.state.password}
-              />
-            </div>
+          <button onClick={handleLogin}>Login</button>
+        </section>
+      )}
 
-            <button onClick={this.handleLogin}>Login</button>
-          </section>
-        )}
+      {isSubmitted === true && (
+        <section>
+          <div>
+            <label>E-mail:</label> {email}
+          </div>
 
-        {this.state.isSubmitted === true && (
-          <section>
-            <div>
-              <label>E-mail:</label> {this.state.email}
-            </div>
-
-            <div>
-              <label>Password:</label> {this.state.password}
-            </div>
-            <button onClick={this.handleLogout}>Logout</button>
-          </section>
-        )}
-      </>
-    );
-  }
-}
+          <div>
+            <label>Password:</label> {password}
+          </div>
+          <button onClick={handleLogout}>Logout</button>
+        </section>
+      )}
+    </>
+  );
+};
 
 export default App;
