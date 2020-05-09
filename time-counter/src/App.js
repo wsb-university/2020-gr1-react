@@ -1,38 +1,107 @@
 import React, { useEffect, useRef, useState } from 'react';
 
+class ClassCounter extends React.Component {
+  state = {
+    counter: 0,
+  };
+
+  componentWillMount() {
+    setInterval(() => {
+      this.state.counter = this.state.counter + 1;
+      //   this.setState({ counter: this.state.counter + 1 });
+      this.forceUpdate();
+    }, 1000);
+  }
+
+  render() {
+    return <div>[TEST]: Time on the site {this.state.counter}</div>;
+  }
+}
+
 const App = () => {
-  // w celu rozwiazania zadania posluze sie hookiem useRef, ktory
-  // sluzy do przechowywania referencji wartosci, ale jego
-  // aktualizacja nie powoduje re-rendera
-  const counterRef = useRef(0);
+  const counter = useRef(0);
+  const [, forceUpdate] = useState({});
 
-  // potrzebuje tez useState z fikcyjna wartoscia zeby moc wymusic re-render
-  const [, forceUpdate] = useState();
-
-  // po ukazaniu sie komponentu w UI musimy zaczac odliczac czas
-  // w tym celu skorzystamy z hook'a useEffect
-  // drugi parametr zdefiniowany jako [] powoduje ze callback z useEffect
-  // wywolany bedzie tylko jeden raz czyli uzyskujemy odpowiednik componentDidMount
   useEffect(() => {
-    // componentDidMount
-
-    // ustawiam interwal
-    const interval = setInterval(() => {
-      // nadpisuje licznik
-      counterRef.current = counterRef.current + 1;
-      // nakazuje zaktualizowac stan zeby wymusic re-render
+    setInterval(() => {
+      counter.current = counter.current + 1;
       forceUpdate({});
     }, 1000);
-
-    return () => {
-      // componentWillUnmount
-
-      // czyszcze pamiec usuwajac interwal
-      clearInterval(interval);
-    };
   }, []);
 
-  return <div>Time on the site {counterRef.current}</div>;
+  return (
+    <div>
+      <div>Time on the site {counter.current}</div>
+      <ClassCounter />
+    </div>
+  );
 };
 
 export default App;
+
+// // typy proste
+// let text = 'to jest text'; // string
+// let numer = 3; // number
+// let wartoscLogiczna = true; // boolean
+
+// // undefined
+// // null
+// // Symbol
+
+// // typy złozone
+
+// // pamiec przegladarki: { text: 'to jest oryginalny tekst' };
+
+// let obj = { text: 'to jest oryginalny tekst' }; // id = 1234 - referencja
+// let func = () => null;
+// let arr = [];
+
+// // typy proste przekazywane sa przez wartosci
+// let a = text; // 'to jest text'
+// text = 'nowy tekst';
+// // console.log({ text, a });
+// a = 'kolejny tekst';
+// // console.log({ text, a });
+
+// // typy zlozone przekazywane sa przez referencje
+// let b = obj; // id = 1234 - referencja
+
+// // console.log(obj.text);
+// // console.log(b.text);
+
+// b.text = 'nasz nowy tekst';
+
+// // console.log(obj.text);
+// // console.log(b.text);
+
+// const counter = { value: 0 }; // ref = 1234
+
+// function increment(counter) {
+//   // referencja
+//   counter.value = counter.value + 1;
+//   //   console.log(counter);
+// }
+
+// increment({ ...counter }); // kopiuj obiekt
+// // { ...counter } - nowy obiekt w pamieci podrecznej // ref = 12345
+
+// // console.log(counter);
+
+// const test = {
+//   value: 10,
+//   next: {
+//     value: 11,
+//   },
+// };
+
+// let c = JSON.parse(JSON.stringify(test)); // glebokie klonowanie
+
+// c.value = 11;
+
+// console.log(test.value);
+// console.log(c.value);
+
+// c.next.value = 14;
+
+// console.log(test.next.value); // 11
+// console.log(c.next.value); // 14
