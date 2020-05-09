@@ -1,59 +1,97 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useReducer } from 'react';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
 
-const dictionary = {
-  pl: {
-    yourNick: 'Twój nick',
-    moveForward: 'Przejdź dalej',
-  },
-  en: {
-    yourNick: 'Your nick',
-    moveForward: 'Move forward',
-  },
+// definicja domyslnego stanu
+const initialState = {
+  nick: '',
 };
 
-const LanguageContext = createContext(dictionary.en);
+// definiuje reducer
+const reducer = (state, action) => {
+  // action : {type: string, payload: any}
+  switch (action.type) {
+    case 'SET_NICK':
+      return { ...state, nick: action.payload };
+
+    case 'CLEAR_NICK':
+      return { ...state, nick: '' };
+
+    default:
+      return { ...state };
+  }
+};
+
+// [nick, setNick] = useState('') -> function useState(value) { ... return [value, callback] }
+
+// definicja customowego hook'a
+const useActions = (state, dispatch) => {
+  return {
+    setNick: (nick) => dispatch({ type: 'SET_NICK', payload: nick }),
+    clearNick: () => dispatch({ type: 'CLEAR_NICK' }),
+  };
+};
+
+// Tworze STORE znany z redux
+const StoreContext = createContext();
+
+const StoreProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const actions = useActions(state, dispatch);
+
+  return (
+    <StoreContext.Provider value={{ state, dispatch, actions }}>
+      {children}
+    </StoreContext.Provider>
+  );
+};
+
+const Chat = () => {
+  const { state, actions, dispatch } = useContext(StoreContext);
+
+  const handleClear = () => {
+    // actions.clearNick();
+
+    dispatch({ type: 'CLEAR_NICK' });
+  };
+
+  return (
+    <div>
+      <section>Twoj nick: {state.nick}</section>
+      <button onClick={handleClear}>wyczysc</button>
+    </div>
+  );
+};
 
 const Home = () => {
-  const [nick, setNick] = useState('');
-  const dictionary = useContext(LanguageContext);
+  const { state, actions, dispatch } = useContext(StoreContext);
 
   const handleChange = (event) => {
-    setNick(event.target.value);
+    // dispatch({ type: 'SET_NICK', payload: event.target.value });
+
+    actions.setNick(event.target.value);
   };
 
   return (
     <section>
       Nick: <input onChange={handleChange} />
       <br />
-      {dictionary.yourNick}: {nick}
+      Twoj nick: {state.nick}
       <br />
       <br />
-      <Link to="/chat">{dictionary.moveForward} ></Link>
+      <Link to="/chat">Przejdz dalej ></Link>
     </section>
   );
 };
 
-const Chat = () => {
-  const dictionary = useContext(LanguageContext);
-  return <section>{dictionary.yourNick}: ....</section>;
-};
-
 const App = () => {
-  const [context, setContext] = useState('pl');
-
   return (
     <div>
-      <LanguageContext.Provider value={dictionary[context]}>
-        <span onClick={() => setContext('pl')}>pl</span> |{' '}
-        <span onClick={() => setContext('en')}>en</span>
-        <br />
-        <br />
+      <StoreProvider>
         <BrowserRouter>
           <Route exact path="/" component={Home} />
           <Route path="/chat" component={Chat} />
         </BrowserRouter>
-      </LanguageContext.Provider>
+      </StoreProvider>
     </div>
   );
 };
